@@ -128,17 +128,17 @@ function compile(compileStep) {
 						// Strip generated sourceMappingURL line (meteor will add its own).
 						// Doing this probably affects the actual source mapping, but this line is near
 						// the end so hopefully it won't matter much.
-						sourceJS = sourceJS.replace(/\/\/# sourceMappingURL[^\n]*/, '');
+						sourceJS = sourceJS.replace(/\/\/# sourceMappingURL/, '// IGNORING THIS:   ');
 
-						// This can also affect the actual source mapping, but I believe these should
-						// only be changes within a line, so high-level line-to-line mapping should
-						// still be consistent.
 						var strippedJS = stripExportedVars(sourceJS, compileStep.declaredExports);
 						var filename = compileStep.inputPath;
 
 						var sourceMap = JSON.parse(compiledUnit[0].sourcemap);
 						var source = compileStep.read().toString('utf8');
 						sourceMap.sourcesContent = [source];
+						var dummyNames = [];
+						for (var i = 0; i < sourceMap.names.length; i++) { dummyNames.push('_dummyName' + i); }
+						sourceMap.names = sourceMap.names.concat(dummyNames);
 
 						compileStep.addJavaScript({
 							path: filename + ".js",
